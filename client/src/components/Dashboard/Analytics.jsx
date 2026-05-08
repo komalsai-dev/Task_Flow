@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../context/AuthContext';
-import { Folder, CheckCircle, Clock, AlertCircle, TrendingUp } from 'lucide-react';
+import { Folder, CheckCircle, Clock, AlertCircle, TrendingUp, Calendar } from 'lucide-react';
 import { AnalyticsSkeleton } from '../Skeleton';
 import './Analytics.css';
 
@@ -33,7 +33,8 @@ const Analytics = () => {
     { label: 'Total Projects', value: data.totalProjects, icon: <Folder size={24} />, color: 'var(--accent-color)', bg: 'rgba(37,99,235,0.1)' },
     { label: 'Total Tasks', value: data.totalTasks, icon: <Clock size={24} />, color: 'var(--warning-text)', bg: 'var(--warning-bg)' },
     { label: 'Completed Tasks', value: data.completedTasks, icon: <CheckCircle size={24} />, color: 'var(--success-text)', bg: 'var(--success-bg)' },
-    { label: 'Due This Week', value: data.upcomingTasksCount, icon: <AlertCircle size={24} />, color: 'var(--danger-text)', bg: 'var(--danger-bg)' },
+    { label: 'Due This Week', value: data.upcomingTasksCount, icon: <Calendar size={24} />, color: 'var(--accent-color)', bg: 'rgba(37,99,235,0.1)' },
+    { label: 'Overdue Tasks', value: data.overdueTasksCount, icon: <AlertCircle size={24} />, color: 'var(--danger-text)', bg: 'var(--danger-bg)' },
   ];
 
   return (

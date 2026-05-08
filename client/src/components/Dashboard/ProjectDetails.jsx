@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { api } from '../../context/AuthContext';
-import { ArrowLeft, Plus, Clock, AlertCircle, CheckCircle2, Pencil, Trash2, X, Save, Calendar } from 'lucide-react';
+import { api, useAuth } from '../../context/AuthContext';
+import { ArrowLeft, Plus, Clock, AlertCircle, CheckCircle2, Pencil, Trash2, X, Save, Calendar, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { KanbanSkeleton } from '../Skeleton';
 import './ProjectDetails.css';
@@ -10,15 +10,17 @@ const ProjectDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { user: currentUser } = useAuth();
   
   const [project, setProject] = useState(null);
   const [tasks, setTasks] = useState({ TODO: [], IN_PROGRESS: [], DONE: [] });
   const [isLoading, setIsLoading] = useState(true);
+  const [teamMembers, setTeamMembers] = useState([]);
   
   // Create Task Modal
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isCreatingTask, setIsCreatingTask] = useState(false);
-  const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'MEDIUM', status: 'TODO', dueDate: '' });
+  const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'MEDIUM', status: 'TODO', dueDate: '', assigneeId: '' });
 
   // Edit Task Modal
   const [editingTask, setEditingTask] = useState(null);
@@ -42,12 +44,16 @@ const ProjectDetails = () => {
         else grouped.TODO.push(task);
       });
       setTasks(grouped);
+
+      // Fetch team members for assignment
+      const usersRes = await api.get('/users');
+      setTeamMembers(usersRes.data);
     } catch (err) {
       console.error(err);
     } finally {
       setIsLoading(false);
     }
-  };
+};
 
   useEffect(() => { fetchData(); }, [id]);
 
@@ -77,7 +83,7 @@ const ProjectDetails = () => {
     try {
       await api.post('/tasks', { ...newTask, title: newTask.title.trim(), projectId: id });
       setIsTaskModalOpen(false);
-      setNewTask({ title: '', description: '', priority: 'MEDIUM', status: 'TODO', dueDate: '' });
+      setNewTask({ title: '', description: '', priority: 'MEDIUM', status: 'TODO', dueDate: '', assigneeId: '' });
       toast.success('Task created successfully!');
       fetchData();
     } catch (err) {
@@ -110,7 +116,8 @@ const ProjectDetails = () => {
         description: editingTask.description,
         priority: editingTask.priority,
         status: editingTask.status,
-        dueDate: editingTask.dueDate
+        dueDate: editingTask.dueDate,
+        assigneeId: editingTask.assigneeId
       });
       setEditingTask(null);
       toast.success('Task updated!');
@@ -236,6 +243,9 @@ const ProjectDetails = () => {
                   <option value="IN_PROGRESS">In Progress</option>
                   <option value="DONE">Done</option>
                 </select>
+              </div>
+
+              <div className="modal-row">
                 <input 
                   type="date" 
                   value={newTask.dueDate} 
@@ -243,6 +253,19 @@ const ProjectDetails = () => {
                   className="modal-input date-input" 
                   title="Due Date"
                 />
+                <select 
+                  value={newTask.assigneeId || ''} 
+                  onChange={(e) => setNewTask({...newTask, assigneeId: e.target.value})} 
+                  className="modal-select"
+                >
+                  <option value="">No Assignee</option>
+                  {teamMembers
+                    .filter(member => currentUser?.role === 'ADMIN' || member.role === 'MEMBER')
+                    .map(member => (
+                      <option key={member.id} value={member.id}>{member.name} {member.role === 'ADMIN' ? '(Admin)' : ''}</option>
+                    ))
+                  }
+                </select>
               </div>
               
               <div className="modal-actions">
@@ -280,6 +303,9 @@ const ProjectDetails = () => {
                   <option value="IN_PROGRESS">In Progress</option>
                   <option value="DONE">Done</option>
                 </select>
+              </div>
+
+              <div className="modal-row">
                 <input 
                   type="date" 
                   value={editingTask.dueDate ? (editingTask.dueDate.includes('T') ? editingTask.dueDate.split('T')[0] : editingTask.dueDate) : ''} 
@@ -287,6 +313,19 @@ const ProjectDetails = () => {
                   className="modal-input date-input" 
                   title="Due Date"
                 />
+                <select 
+                  value={editingTask.assigneeId || ''} 
+                  onChange={(e) => setEditingTask({...editingTask, assigneeId: e.target.value})} 
+                  className="modal-select"
+                >
+                  <option value="">No Assignee</option>
+                  {teamMembers
+                    .filter(member => currentUser?.role === 'ADMIN' || member.role === 'MEMBER')
+                    .map(member => (
+                      <option key={member.id} value={member.id}>{member.name} {member.role === 'ADMIN' ? '(Admin)' : ''}</option>
+                    ))
+                  }
+                </select>
               </div>
               
               <div className="modal-actions">
@@ -323,6 +362,12 @@ const ProjectDetails = () => {
                   <span style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Calendar size={14} />
                     Due: {new Date(viewingTask.dueDate).toLocaleDateString()}
+                  </span>
+                )}
+                {viewingTask.assignee && (
+                  <span style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <User size={14} />
+                    Assigned: {viewingTask.assignee.name}
                   </span>
                 )}
               </div>
@@ -379,6 +424,13 @@ const TaskCard = ({ task, onStatusChange, onEdit, onDelete, onClick }) => {
           {task.priority === 'HIGH' ? <AlertCircle size={14} /> : task.priority === 'MEDIUM' ? <Clock size={14} /> : <CheckCircle2 size={14} />}
           {task.priority}
         </span>
+        
+        {task.assignee && (
+          <div className="task-assignee-tiny" title={`Assigned to ${task.assignee.name}`}>
+            <User size={12} />
+            <span>{task.assignee.name.split(' ')[0]}</span>
+          </div>
+        )}
         
         <select 
           className="status-dropdown"

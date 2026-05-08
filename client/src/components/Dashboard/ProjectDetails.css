@@ -199,21 +199,50 @@
 .priority-badge.medium { background-color: var(--warning-bg); color: var(--warning-text); }
 .priority-badge.low { background-color: var(--success-bg); color: var(--success-text); }
 
-.modal-select, .date-input {
-  flex: 1;
-  padding: 11px 14px;
-  border-radius: 8px;
+.modal-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.modal-input, .modal-textarea, .modal-select {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-color);
-  background-color: var(--bg-color);
+  border-radius: 8px;
   color: var(--text-primary);
   font-size: 0.95rem;
-  outline: none;
-  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-select option {
+  background-color: #ffffff; /* Default Light background */
+  color: #000000; /* Default Black text */
+}
+
+/* Dark mode override */
+:root[data-theme='dark'] .modal-select option {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+.modal-row .modal-select, .modal-row .modal-input {
+  flex: 1;
+  min-width: 0;
+  width: auto;
 }
 
 .date-input::-webkit-calendar-picker-indicator {
-  filter: var(--theme-icon-filter);
   cursor: pointer;
+  filter: none; /* Default for Light Mode */
+  opacity: 0.8;
+}
+
+/* Dark mode override for calendar icon */
+:root[data-theme='dark'] .date-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
 }
 
 .status-dropdown {
