@@ -1,0 +1,52 @@
+/* ======= Skeleton Pulse Animation ======= */
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-pulse {
+  background: linear-gradient(
+    90deg,
+    var(--border-color) 25%,
+    var(--surface-color) 50%,
+    var(--border-color) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+/* Skeleton cards */
+.skeleton-card {
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skeleton-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.skeleton-task-card {
+  padding: 16px;
+  border-radius: 8px;
+}
+
+/* Table skeleton */
+.skeleton-table-row {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 0.8fr 0.8fr 1fr;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+  gap: 12px;
+}
