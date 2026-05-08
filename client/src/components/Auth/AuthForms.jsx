@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, ArrowRight, AlertCircle, Eye, EyeOff, CheckCircle } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, api } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import './AuthForms.css';
 
