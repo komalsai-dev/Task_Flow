@@ -1,10 +1,12 @@
 const express = require('express');
-const { getMe, updateMe, getMyTasks, getAnalytics, getCalendarTasks } = require('../controllers/userController');
+const { getMe, updateMe, getUsers, getMyTasks, getAnalytics, getCalendarTasks } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
 router.use(protect);
+
+router.get('/', getUsers);
 
 router.route('/me')
   .get(getMe)

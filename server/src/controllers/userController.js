@@ -147,17 +147,32 @@ const getAnalytics = async (req, res) => {
     const nextWeek = new Date();
     nextWeek.setDate(now.getDate() + 7);
     const upcomingTasks = tasks.filter(t => t.dueDate && new Date(t.dueDate) >= now && new Date(t.dueDate) <= nextWeek);
+    const overdueTasksCount = tasks.filter(t => t.dueDate && new Date(t.dueDate) < now && t.status !== 'DONE').length;
 
     res.json({
       totalProjects: projects.length,
       totalTasks: tasks.length,
       completedTasks: taskStatusCounts.DONE,
       upcomingTasksCount: upcomingTasks.length,
+      overdueTasksCount,
       projectStatusCounts,
       taskStatusCounts,
       taskPriorityCounts,
       isAdmin
     });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server Error' });
+  }
+};
+
+// GET /api/users
+const getUsers = async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: { id: true, name: true, email: true, role: true }
+    });
+    res.json(users);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server Error' });
@@ -197,4 +212,4 @@ const getCalendarTasks = async (req, res) => {
   }
 };
 
-module.exports = { getMe, updateMe, getMyTasks, getAnalytics, getCalendarTasks };
+module.exports = { getMe, updateMe, getUsers, getMyTasks, getAnalytics, getCalendarTasks };
