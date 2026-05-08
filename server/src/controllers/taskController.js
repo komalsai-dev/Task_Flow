@@ -54,7 +54,7 @@ const createTask = async (req, res) => {
         status: status || 'TODO',
         priority: priority || 'MEDIUM',
         projectId,
-        assigneeId,
+        assigneeId: assigneeId || null, // Fix: Handle empty string as null
         dueDate: dueDate ? new Date(dueDate) : null
       },
       include: {
@@ -64,8 +64,8 @@ const createTask = async (req, res) => {
 
     res.status(201).json(task);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Server Error' });
+    console.error('Create Task Error:', error.message);
+    res.status(500).json({ error: 'Server Error', message: error.message });
   }
 };
 
@@ -101,7 +101,7 @@ const updateTask = async (req, res) => {
         ...(title !== undefined && { title: title.trim() }),
         ...(description !== undefined && { description: description?.trim() || null }),
         ...(status !== undefined && { status }),
-        ...(assigneeId !== undefined && { assigneeId }),
+        ...(assigneeId !== undefined && { assigneeId: assigneeId || null }), // Fix: Handle empty string as null
         ...(priority !== undefined && { priority }),
         ...(dueDate !== undefined && { dueDate: dueDate ? new Date(dueDate) : null }),
       },
@@ -112,8 +112,8 @@ const updateTask = async (req, res) => {
 
     res.json(task);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Server Error' });
+    console.error('Update Task Error:', error.message);
+    res.status(500).json({ error: 'Server Error', message: error.message });
   }
 };
 

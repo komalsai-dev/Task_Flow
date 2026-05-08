@@ -260,7 +260,7 @@ const ProjectDetails = () => {
                 >
                   <option value="">No Assignee</option>
                   {teamMembers
-                    .filter(member => currentUser?.role === 'ADMIN' || member.role === 'MEMBER')
+                    .filter(member => member.id !== currentUser?.id && (currentUser?.role === 'ADMIN' || member.role === 'MEMBER'))
                     .map(member => (
                       <option key={member.id} value={member.id}>{member.name} {member.role === 'ADMIN' ? '(Admin)' : ''}</option>
                     ))
@@ -320,7 +320,7 @@ const ProjectDetails = () => {
                 >
                   <option value="">No Assignee</option>
                   {teamMembers
-                    .filter(member => currentUser?.role === 'ADMIN' || member.role === 'MEMBER')
+                    .filter(member => member.id !== currentUser?.id && (currentUser?.role === 'ADMIN' || member.role === 'MEMBER'))
                     .map(member => (
                       <option key={member.id} value={member.id}>{member.name} {member.role === 'ADMIN' ? '(Admin)' : ''}</option>
                     ))
